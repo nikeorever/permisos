@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     kotlin("jvm")
     id("org.jetbrains.dokka")
@@ -28,6 +30,12 @@ val generateVersionsTask = tasks.register("generateVersions") {
     val outputDir = file("$buildDir/gen")
 
     inputs.property("permisosVersion", project.property("VERSION_NAME"))
+
+    val versionProperties = Properties()
+    versionProperties.load(File(rootDir, "versions.properties").reader())
+    val aspectjrtVersion = versionProperties.getProperty("version.org.aspectj..aspectjrt")
+    inputs.property("aspectjrtVersion", aspectjrtVersion)
+
     outputs.dir(outputDir)
 
     doLast {
@@ -40,6 +48,8 @@ val generateVersionsTask = tasks.register("generateVersions") {
             
             // Version of permisos
             internal const val VERSION_PERMISOS = "${inputs.properties["permisosVersion"]}"
+            // Version of aspectjrt
+            internal const val VERSION_ASPECTJRT = "${inputs.properties["aspectjrtVersion"]}"
             
             """.trimIndent()
         )

@@ -131,5 +131,9 @@ class PermisosPlugin : Plugin<Project> {
             configuration,
             "cn.nikeo.permisos:permisos-annotations:$VERSION_PERMISOS"
         )
+        project.dependencies.add(
+            configuration,
+            "org.aspectj:aspectjrt:$VERSION_ASPECTJRT"
+        )
     }
 }
