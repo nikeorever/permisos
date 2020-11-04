@@ -7,5 +7,5 @@ package cn.nikeo.permisos.weaving
  * Note that: Only supports annotation to an Activity or Fragment.
  */
 @Target(AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.SOURCE)
+@Retention(AnnotationRetention.BINARY)
 annotation class Permisos()

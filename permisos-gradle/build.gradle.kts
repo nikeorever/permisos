@@ -63,6 +63,8 @@ dependencies {
     compileOnly(kotlin("gradle-plugin"))
     implementation(Dependencies.AspectJ.jrt)
     implementation(Dependencies.AspectJ.tools)
+    implementation(Dependencies.jarTransformer)
+    implementation(Dependencies.javassist)
 }
 
 apply("$rootDir/gradle/configure-maven-publish.gradle")

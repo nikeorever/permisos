@@ -67,4 +67,6 @@ object Dependencies {
     const val ktlint = "org.jlleitschuh.gradle:ktlint-gradle:_"
     const val detekt = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:_"
     const val confundus = "com.jakewharton.confundus:confundus-gradle:_"
+    const val jarTransformer = "cn.nikeo.jar-transformer:jar-transformer:_"
+    const val javassist = "org.javassist:javassist:_"
 }

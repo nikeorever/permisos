@@ -51,7 +51,6 @@ fun ajc(inPath: String, aspectPath: String, d: String, classPath: String, bootCl
     val log = project.logger
 
     log.debug("ajc args: ${args.joinToString(" ")}")
-
     Main().run(args, handler)
     handler.getMessages(null, true).forEach { message ->
         when (message.kind) {

@@ -15,6 +15,7 @@ import java.io.File
 import org.aspectj.bridge.IMessage
 import org.aspectj.bridge.MessageHandler
 import org.aspectj.tools.ajc.Main
+import org.aspectj.weaver.Dump
 
 class PermisosPlugin : Plugin<Project> {
     private lateinit var project: Project
@@ -30,6 +31,9 @@ class PermisosPlugin : Plugin<Project> {
         }
 
         val android = project.extensions.getByType(BaseExtension::class.java)
+
+        android.registerTransform(PermisosTransform())
+
         android.buildTypes.onEach { addDependencies(it) }.whenObjectAdded { addDependencies(it) }
 
         val variants = when {
@@ -37,6 +41,18 @@ class PermisosPlugin : Plugin<Project> {
             isLibrary -> project.extensions.getByType(LibraryExtension::class.java).libraryVariants
             else -> error("The gradle plugin[cn.nikeo.permisos] just support app or library")
         }
+
+        /*
+
+                         Property	           Default	        Description
+            org.aspectj.weaver.Dump.exception	true	Generate an ajcore files when an exception thrown.
+            org.aspectj.weaver.Dump.condition	abort	Message kind for which to generate ajcore e.g. error.
+            org.aspectj.dump.directory	none	The directory used for ajcore files.
+         */
+        // TODO
+        Dump.setDumpOnException(true)
+        Dump.setDumpDirectory(File(project.buildDir, "ajclogs").absolutePath)
+        Dump.setDumpOnExit(IMessage.ABORT)
 
         project.tasks.withType(KotlinCompile::class.java) { kotlinCompile: KotlinCompile ->
             kotlinCompile.doLast {
