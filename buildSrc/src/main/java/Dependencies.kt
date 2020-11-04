@@ -7,7 +7,9 @@ object Versions {
 
 object Dependencies {
     object Kotlin {
-        private fun kotlin(module: String, version: String) = "org.jetbrains.kotlin:kotlin-$module:$version"
+        private fun kotlin(module: String, version: String) =
+            "org.jetbrains.kotlin:kotlin-$module:$version"
+
         fun reflect(version: String) = kotlin("reflect", version)
         val gradlePlugin = kotlin("gradle-plugin", "_")
 
@@ -19,6 +21,13 @@ object Dependencies {
         }
     }
 
+    object Kotlinx {
+        private fun kotlinx(module: String, version: String) =
+            "org.jetbrains.kotlinx:kotlinx-$module:$version"
+
+        val metadataJvm = kotlinx("metadata-jvm", "_")
+    }
+
     const val dokka = "org.jetbrains.dokka:dokka-gradle-plugin:_"
 
     object Android {
@@ -27,6 +36,18 @@ object Dependencies {
 
     object AndroidX {
         const val annotation = "androidx.annotation:annotation:_"
+        object Core {
+            const val runtime = "androidx.core:core:_"
+            const val ktx = "androidx.core:core-ktx:_"
+        }
+    }
+
+    object Google {
+        object Auto {
+            const val service = "com.google.auto.service:auto-service:_"
+            const val common = "com.google.auto:auto-common:_"
+            const val value = "com.google.auto.value:auto-value:_"
+        }
     }
 
     object AspectJ {
@@ -35,8 +56,11 @@ object Dependencies {
     }
 
     object Squareup {
-        const val phrase = "com.squareup.phrase:phrase:_"
-        const val kotlinpoet = "com.squareup:kotlinpoet:_"
+        object Kotlinpoet {
+            const val runtime = "com.squareup:kotlinpoet:_"
+            const val metadata = "com.squareup:kotlinpoet-metadata:_"
+            const val metadataSpecs = "com.squareup:kotlinpoet-metadata-specs:_"
+        }
     }
 
     const val mavenPublish = "com.vanniktech:gradle-maven-publish-plugin:_"

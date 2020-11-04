@@ -5,6 +5,7 @@ rootProject.name = "permisos"
 include(":permisos-gradle")
 include(":permisos-annotations")
 include(":permisos-runtime")
+include(":permisos-compiler")
 
 buildscript {
     repositories { gradlePluginPortal() }

@@ -11,7 +11,6 @@ gradlePlugin {
     plugins {
         create("permisos") {
             id = "cn.nikeo.permisos"
-            displayName = "" // TODO WHAT?
             description = "Easy to check and request dangerous permissions on Android."
             implementationClass = "cn.nikeo.permisos.gradle.PermisosPlugin"
         }

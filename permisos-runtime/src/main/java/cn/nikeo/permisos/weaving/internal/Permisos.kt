@@ -35,11 +35,15 @@ class Permisos {
                 joinPoint.proceed()
             },
             shouldShowRequestPermissionRationale = { deniedPermissions ->
-                // TODO Global settings?
                 if (`this` is PermissionsDeniedHandler) {
                     `this`.doOnPermissionsDenied(
                         requiredPermissions.requestCode,
                         deniedPermissions
+                    )
+                } else {
+                    error(
+                        "In order to receive notification of permissions denied, " +
+                                "$`this` must implement PermissionsDeniedHandler, "
                     )
                 }
             },

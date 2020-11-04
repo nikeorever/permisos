@@ -75,7 +75,8 @@ subprojects {
                 jvmTarget = "1.8"
                 freeCompilerArgs = listOf(
                     "-progressive", "-Xjvm-default=enable",
-                    "-Xopt-in=kotlin.ExperimentalStdlibApi"
+                    "-Xopt-in=kotlin.ExperimentalStdlibApi",
+                    "-Xopt-in=kotlin.RequiresOptIn"
                 )
             }
         }
@@ -92,7 +93,8 @@ subprojects {
                 jvmTarget = "1.8"
                 freeCompilerArgs = listOf(
                     "-progressive", "-Xjvm-default=enable",
-                    "-Xopt-in=kotlin.ExperimentalStdlibApi"
+                    "-Xopt-in=kotlin.ExperimentalStdlibApi",
+                    "-Xopt-in=kotlin.RequiresOptIn"
                 )
             }
         }
