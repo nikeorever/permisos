@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity() {
 class MainFragment : Fragment(){  
 }
 ```
-2. Annotate `@RequiredPermissions` to a method whose **return type is void(Java)/Unit(Kotlin)**, which means that only the relevant permission is granted, the method body of this method will be executed.
+2. Annotate `@RequiredPermissions` to a method whose **return type is void(Java) or Unit(Kotlin)**, which means that only the relevant permission is granted, the method body of this method will be executed.
 ```kotlin
 @RequiredPermissions(  
     requestCode = 100,  
@@ -55,11 +55,7 @@ fun writeTextToExternalStorage() {
     }  
 }
 ```
-3. In order to receive notifications of permission denied, **please let the `Activity` or `Fragment` annotated `@Permisos` implement the `PermissionsDeniedHandler` interface**. When the requested permission has been denied by the user, the framework will call the `doOnPermissionsDenied` method of this interface. In this method, you can explain to the user that the feature is unavailable because  
-the features requires a permission that the user has denied.  
-At the same time, respect the user's decision. Don't link to  
-system settings in an effort to convince the user to change  
-their decision.
+3. In order to receive notifications of permission denied, **please let the `Activity` or `Fragment` annotated `@Permisos` implement the `PermissionsDeniedHandler` interface**. When the requested permission has been denied by the user, the framework will call the `doOnPermissionsDenied` method of this interface. In this method, you can explain to the user that the feature is unavailable because the features requires a permission that the user has denied. At the same time, respect the user's decision. Don't link to system settings in an effort to convince the user to change their decision.
 ```kotlin
 // For Activity
 @Permisos  
