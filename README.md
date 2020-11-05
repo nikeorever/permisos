@@ -125,6 +125,12 @@ Sometimes you need to use permission checking and request functions outside of `
  }
  ```
 
+## Limit
+
+ 1. `@Permisos` only supports annotations to `Activity` or `Fragment` and its derived classes.
+ 2. Classes annotated by `@Permisos` cannot have type parameters.
+ 3. The constructor of the base class of the class annotated by `@Permisos` **cannot** contain default parameters.
+
 ## Download
   
 ## License  
