@@ -51,6 +51,15 @@ fun ajc(inPath: String, aspectPath: String, d: String, classPath: String, bootCl
     val log = project.logger
 
     log.debug("ajc args: ${args.joinToString(" ")}")
+    /*
+
+                      Property	           Default	        Description
+        org.aspectj.weaver.Dump.exception	true	Generate an ajcore files when an exception thrown.
+        org.aspectj.weaver.Dump.condition	abort	Message kind for which to generate ajcore e.g. error.
+        org.aspectj.dump.directory	        none	The directory used for ajcore files.
+    */
+    org.aspectj.weaver.Dump.setDumpOnException(false)
+
     Main().run(args, handler)
     handler.getMessages(null, true).forEach { message ->
         when (message.kind) {
