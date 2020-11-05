@@ -48,9 +48,9 @@ fun writeTextToExternalStorage() {
           
         File(documentsFile, "Permisos.txt").writeText(  
             text = """  
-			Hi, Android, I am permisos!! 
-			""".trimIndent(),  
-			charset = Charsets.UTF_8  
+	        Hi, Android, I am permisos!! 
+	    """.trimIndent(),  
+	    charset = Charsets.UTF_8  
         )  
     }  
 }
@@ -106,8 +106,8 @@ Sometimes you need to use permission checking and request functions outside of `
  
                      File(documentsFile, "Permisos.txt").writeText(
                          text = """
-                     Hi, Android, I am permisos!!
-                 """.trimIndent(),
+                             Hi, Android, I am permisos!!
+                 	 """.trimIndent(),
                          charset = Charsets.UTF_8
                      )
                  }
