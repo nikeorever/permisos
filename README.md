@@ -132,7 +132,44 @@ Sometimes you need to use permission checking and request functions outside of `
  3. The constructor of the base class of the class annotated by `@Permisos` **cannot** contain default parameters.
 
 ## Download
+
+#### Top-level build file
+```groovy
+buildscript {
+    ext.permisos_version = latest_version
+    repositories {
+        google()
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath "cn.nikeo.permisos:permisos-gradle:$permisos_version"
+    }
+}
+  ```
   
+#### App-module build file
+```groovy
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'cn.nikeo.permisos'
+
+dependencies {
+    kapt "cn.nikeo.permisos:permisos-compiler:$permisos_version"
+}
+```
+  
+#### Library-module build file
+```groovy
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'cn.nikeo.permisos'
+
+dependencies {
+    kapt "cn.nikeo.permisos:permisos-compiler:$permisos_version"
+}
+```
+
 ## License  
   
 Apache License, Version 2.0, ([LICENSE](https://github.com/nikeorever/permisos/blob/trunk/LICENSE) or [https://www.apache.org/licenses/LICENSE-2.0](https://www.apache.org/licenses/LICENSE-2.0))
