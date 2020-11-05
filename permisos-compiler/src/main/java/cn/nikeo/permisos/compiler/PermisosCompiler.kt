@@ -10,7 +10,7 @@ import javax.lang.model.element.TypeElement
 class PermisosCompiler : BaseProcessor() {
 
     override fun getSupportedAnnotationTypes(): MutableSet<String> {
-        return ImmutableSet.of(AndroidClassNames.PERMISOS.toString())
+        return ImmutableSet.of(ClassNames.PERMISOS.toString())
     }
 
     override fun delayErrors(): Boolean {

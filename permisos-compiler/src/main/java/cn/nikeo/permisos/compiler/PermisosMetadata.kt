@@ -194,7 +194,7 @@ data class PermisosMetadata(
             return element.annotationMirrors
                 .firstOrNull { mirror: AnnotationMirror ->
                     @Suppress("DEPRECATION")
-                    AndroidClassNames.PERMISOS == mirror.annotationType.asTypeName()
+                    ClassNames.PERMISOS == mirror.annotationType.asTypeName()
                 }
         }
 
