@@ -107,6 +107,8 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 dependencies {
     implementation(project(":permisos-annotations"))
     api(Dependencies.AndroidX.annotation)
+    api(Dependencies.AndroidX.fragment)
+    api(Dependencies.AndroidX.activity)
     implementation(Dependencies.AspectJ.jrt)
     api(Dependencies.AndroidX.Core.runtime)
     api(Dependencies.AndroidX.Core.ktx)

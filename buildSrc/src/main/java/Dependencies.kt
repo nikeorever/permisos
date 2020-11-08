@@ -36,6 +36,8 @@ object Dependencies {
 
     object AndroidX {
         const val annotation = "androidx.annotation:annotation:_"
+        const val fragment = "androidx.fragment:fragment:_"
+        const val activity = "androidx.activity:activity:_"
         object Core {
             const val runtime = "androidx.core:core:_"
             const val ktx = "androidx.core:core-ktx:_"

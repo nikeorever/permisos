@@ -4,8 +4,10 @@ package cn.nikeo.permisos.weaving.api
 
 import android.app.Activity
 import android.content.pm.PackageManager
+import androidx.activity.ComponentActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 
 /**
  * Enumerate all permission types.
@@ -47,4 +49,28 @@ fun groupPermissions(
             else -> PermissionType.NOT_REQUESTED_YET
         }
     }
+}
+
+/**
+ * A convenient method is used to safely convert the Activity annotated with @Permisos to
+ * [PermissionsChecker], so that permissions can be checked and requested by Permisos
+ * outside of the Activity.
+ */
+fun ComponentActivity.asPermissionsChecker(): PermissionsChecker {
+    check(this is PermissionsChecker) {
+        "$this must be annotated with the @Permisos."
+    }
+    return this
+}
+
+/**
+ * A convenient method is used to safely convert the Fragment annotated with @Permisos to
+ * [PermissionsChecker], so that permissions can be checked and requested by Permisos
+ * outside of the Fragment.
+ */
+fun Fragment.asPermissionsChecker(): PermissionsChecker {
+    check(this is PermissionsChecker) {
+        "$this must be annotated with the @Permisos."
+    }
+    return this
 }
