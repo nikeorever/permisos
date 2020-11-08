@@ -86,13 +86,13 @@ class MainFragment : Fragment(), PermissionsDeniedHandler {
 Sometimes you need to use permission checking and request functions outside of `Activity` or `Fragment`, don't worry, this library can also be easily satisfied. It only takes two simple steps to complete:
 
  1. Same as the first step above。
- 2. Pass the `Activity` or `Fragment` annotated with `@Permisos` into your external class (if you pass in as a constructor parameter), and then you can force the `Activity` or `Fragment` into the `PermissionsChecker` interface (*this type of forced type conversion is safe*) , So you can check and request permissions through the `checkPermissions` method of `PermissionsChecker`.
+ 2. Pass the `Activity` or `Fragment` annotated with `@Permisos` into your external class, and then you can use `asPermissionsChecker()` to convert the `Activity` or `Fragment` to the `PermissionsChecker` interface, So you can check and request permissions by the `checkPermissions` method of `PermissionsChecker`.
  ```kotlin
  class Helper(private val mainActivity: MainActivity) {
  
      @Suppress("DEPRECATION", "CAST_NEVER_SUCCEEDS")
      fun writeTextToExternalStorage() {
-         (mainActivity as PermissionsChecker).checkPermissions(
+         mainActivity.asPermissionsChecker().checkPermissions(
              requestCode = 100,
              doOnAllPermissionsGranted = {
                  if (Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED) {
@@ -127,7 +127,7 @@ Sometimes you need to use permission checking and request functions outside of `
 
 ## Limit
 
- 1. `@Permisos` only supports annotations to `Activity` or `Fragment` and its derived classes.
+ 1. `@Permisos` only supports annotations to derived classes of `androidx.activity.ComponentActivity` or `androidx.fragment.app.Fragment`.
  2. Classes annotated by `@Permisos` cannot have type parameters.
  3. The constructor of the base class of the class annotated by `@Permisos` **cannot** contain default parameters.
 
@@ -136,7 +136,7 @@ Sometimes you need to use permission checking and request functions outside of `
 #### Top-level build file
 ```groovy
 buildscript {
-    ext.permisos_version = "0.3.0"
+    ext.permisos_version = "0.4.0"
     repositories {
         google()
         jcenter()
