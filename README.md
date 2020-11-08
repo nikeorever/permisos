@@ -90,7 +90,6 @@ Sometimes you need to use permission checking and request functions outside of `
  ```kotlin
  class Helper(private val mainActivity: MainActivity) {
  
-     @Suppress("DEPRECATION", "CAST_NEVER_SUCCEEDS")
      fun writeTextToExternalStorage() {
          mainActivity.asPermissionsChecker().checkPermissions(
              requestCode = 100,
