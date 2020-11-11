@@ -104,7 +104,7 @@ object Processors {
      * @throws [IllegalArgumentException] if 2 or more annotations are found.
      * @return [Optional.empty] if no annotation is found on the element.
      */
-    private fun getAnnotationMirrorOptional(
+    fun getAnnotationMirrorOptional(
         element: Element,
         className: ClassName
     ): Optional<AnnotationMirror> {
@@ -114,5 +114,31 @@ object Processors {
                 mirror.annotationType.asTypeName() == className
             }
             .collect(toOptional())
+    }
+
+    /**
+     * Returns the annotation mirror from the given element that corresponds to the given class.
+     *
+     * @throws IllegalStateException if the given element isn't annotated with that annotation.
+     */
+    fun getAnnotationMirror(
+        element: Element,
+        className: ClassName
+    ): AnnotationMirror {
+        val annotationMirror: Optional<AnnotationMirror> =
+            getAnnotationMirrorOptional(
+                element,
+                className
+            )
+        return if (annotationMirror.isPresent) {
+            annotationMirror.get()
+        } else {
+            throw IllegalStateException(
+                String.format(
+                    "Couldn't find annotation %s on element %s. Found annotations: %s",
+                    className, element.simpleName, element.annotationMirrors
+                )
+            )
+        }
     }
 }

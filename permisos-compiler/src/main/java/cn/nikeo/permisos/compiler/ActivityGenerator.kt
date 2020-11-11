@@ -1,10 +1,16 @@
 package cn.nikeo.permisos.compiler
 
+import com.squareup.kotlinpoet.ANY
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.TypeVariableName
+import com.squareup.kotlinpoet.asTypeName
 import java.io.IOException
 import javax.annotation.processing.ProcessingEnvironment
+import javax.lang.model.element.TypeParameterElement
+import javax.lang.model.type.TypeMirror
 
 class ActivityGenerator(
     private val env: ProcessingEnvironment,
@@ -27,9 +33,31 @@ class ActivityGenerator(
             .addModifiers(*metadata.generatedClassModifiers())
 
         Generators.addRequireActivityProperty(metadata.androidType, builder)
-        Generators.addPermissionsCheckerAndImplementation(builder)
+        Generators.addPermissionsCheckerAndImplementation(metadata.androidType, builder)
         Generators.addPermissionConfiguration(builder)
         Generators.addOnRequestPermissionsResultFunOverride(builder)
+
+        Generators.copyLintAnnotations(metadata.element, builder)
+        Generators.copyConstructors(metadata.baseElement, builder)
+
+        metadata.baseElement.typeParameters.stream()
+            .map { element: TypeParameterElement ->
+                TypeVariableName(
+                    name = element.simpleName.toString(),
+                    bounds = element.bounds.asSequence().map { mirror: TypeMirror ->
+                        @Suppress("DEPRECATION")
+                        mirror.asTypeName()
+                    }.filter { typeName: TypeName ->
+                        typeName != ANY && typeName != ClassNames.JAVA_OBJECT
+                    }.ifEmpty {
+                        sequenceOf(ANY.copy(nullable = true))
+                    }.toList()
+                )
+            }.forEachOrdered { typeVariable: TypeVariableName ->
+                builder.addTypeVariable(
+                    typeVariable
+                )
+            }
 
         FileSpec.builder(generatedClassName.packageName, generatedClassName.simpleName)
             .addComment("Generated file. Do not edit!")

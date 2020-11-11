@@ -1,6 +1,8 @@
 package cn.nikeo.permisos.compiler
 
+import com.google.common.collect.Iterables
 import com.squareup.kotlinpoet.ARRAY
+import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FunSpec
@@ -17,6 +19,16 @@ import com.squareup.kotlinpoet.STRING
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.UNIT
 import com.squareup.kotlinpoet.WildcardTypeName
+import com.squareup.kotlinpoet.asTypeName
+import java.util.Optional
+import java.util.function.Consumer
+import java.util.stream.Collectors
+import javax.lang.model.element.Element
+import javax.lang.model.element.ExecutableElement
+import javax.lang.model.element.Modifier
+import javax.lang.model.element.TypeElement
+import javax.lang.model.element.VariableElement
+import javax.lang.model.util.ElementFilter
 
 /**
  * Helper class for writing Permisos generators.
@@ -57,7 +69,7 @@ object Generators {
     /**
      * Add superInterface - PermissionsChecker
      */
-    fun addPermissionsCheckerAndImplementation(builder: TypeSpec.Builder) {
+    fun addPermissionsCheckerAndImplementation(type: AndroidType, builder: TypeSpec.Builder) {
         builder.addSuperinterface(ClassNames.PERMISSIONS_CHECKER)
         builder.addFunction(
             FunSpec.builder("checkPermissions")
@@ -82,13 +94,13 @@ object Generators {
                         .addModifiers(KModifier.VARARG)
                         .build()
                 )
-                .addCode(checkPermissionsFunCode(builder))
+                .addCode(checkPermissionsFunCode(type, builder))
                 .returns(UNIT)
                 .build()
         )
     }
 
-    private fun checkPermissionsFunCode(builder: TypeSpec.Builder): CodeBlock {
+    private fun checkPermissionsFunCode(type: AndroidType, builder: TypeSpec.Builder): CodeBlock {
         // private var permissionConfiguration: PermissionConfiguration? = null
         builder.addProperty(
             PropertySpec.builder(
@@ -97,8 +109,10 @@ object Generators {
                 modifiers = arrayOf(KModifier.PRIVATE)
             ).mutable(true).initializer("null").build()
         )
-        return CodeBlock.of(
-            """
+        return if (type == AndroidType.ACTIVITY) {
+            // For Activity
+            CodeBlock.of(
+                """
         val grouped = groupPermissions(requireActivity, *permissions)
         val grantedPermissions = grouped[PermissionType.GRANTED]
         val deniedPermissions = grouped[PermissionType.DENIED]
@@ -133,6 +147,7 @@ object Generators {
             // You can directly ask for the permission.
             // The registered ActivityResultCallback gets the result of this request.
             // You can directly ask for the permission.
+            
             ActivityCompat.requestPermissions(
                 requireActivity,
                 notRequestedYetPermissions.toTypedArray(),
@@ -140,7 +155,55 @@ object Generators {
             )
         }
             """.trimIndent()
-        )
+            )
+
+        } else {
+            // For Fragment
+            CodeBlock.of(
+                """
+        val grouped = groupPermissions(requireActivity, *permissions)
+        val grantedPermissions = grouped[PermissionType.GRANTED]
+        val deniedPermissions = grouped[PermissionType.DENIED]
+        val notRequestedYetPermissions = grouped[PermissionType.NOT_REQUESTED_YET]
+
+        if (grantedPermissions?.size == permissions.size) {
+            doOnAllPermissionsGranted()
+            return
+        }
+
+        if (notRequestedYetPermissions.isNullOrEmpty()) {
+
+            check(!deniedPermissions.isNullOrEmpty())
+            // In an educational UI, explain to the user why your app requires this
+            // permission for a specific feature to behave as expected. In this UI,
+            // include a "cancel" or "no thanks" button that allows the user to
+            // continue using your app without granting the permission.
+            shouldShowRequestPermissionRationale(deniedPermissions)
+        } else {
+
+            val task = PermissionConfiguration(
+                requestCode,
+                doOnAllPermissionsGranted,
+                shouldShowRequestPermissionRationale
+            )
+            if (!deniedPermissions.isNullOrEmpty()) {
+                task.deniedPermissions.addAll(deniedPermissions)
+            }
+
+            permissionConfiguration = task
+
+            // You can directly ask for the permission.
+            // The registered ActivityResultCallback gets the result of this request.
+            // You can directly ask for the permission.
+            
+            requestPermissions(
+                notRequestedYetPermissions.toTypedArray(),
+                requestCode
+            )
+        }
+            """.trimIndent()
+            )
+        }
     }
 
     /**
@@ -285,5 +348,115 @@ object Generators {
         }
             """.trimIndent()
         )
+    }
+
+    /**
+     * Copies all constructors with arguments to the builder, if the base class is abstract.
+     * Otherwise throws an exception.
+     */
+    fun copyConstructors(baseClass: TypeElement, builder: TypeSpec.Builder) {
+        val constructors = ElementFilter.constructorsIn(baseClass.enclosedElements)
+            .stream()
+            .filter { constructor: ExecutableElement ->
+                !constructor.modifiers.contains(Modifier.PRIVATE)
+            }.collect(Collectors.toList())
+        if (constructors.size == 1 && Iterables.getOnlyElement(constructors).parameters.isEmpty()) {
+            // No need to copy the constructor if the default constructor will handle it.
+            return
+        }
+        constructors.forEach(Consumer { constructor: ExecutableElement ->
+            builder.addFunction(
+                copyConstructor(constructor)
+            )
+        })
+    }
+
+    /**
+     * Returns Optional with AnnotationSpec for Nullable if found on element, empty otherwise.
+     */
+    private fun getNullableAnnotationSpec(element: Element): Optional<AnnotationSpec> {
+        for (annotationMirror in element.annotationMirrors) {
+            if (annotationMirror
+                    .annotationType
+                    .asElement()
+                    .simpleName
+                    .contentEquals("Nullable")
+            ) {
+                val annotationSpec: AnnotationSpec =
+                    AnnotationSpec.get(annotationMirror)
+                // If using the android internal Nullable, convert it to the externally-visible version.
+                return if (AndroidClassNames.NULLABLE_INTERNAL == annotationSpec.typeName) Optional.of(
+                    AnnotationSpec.builder(AndroidClassNames.NULLABLE).build()
+                ) else Optional.of(annotationSpec)
+            }
+        }
+        return Optional.empty()
+    }
+
+    /**
+     * Returns a ParameterSpec of the input parameter, @Nullable annotated if existing in original
+     * (this does not handle Nullable type annotations).
+     */
+    private fun getParameterSpecWithNullable(parameter: VariableElement): ParameterSpec {
+        val isNullable = getNullableAnnotationSpec(parameter).isPresent
+
+        val name = parameter.simpleName.toString()
+
+        @Suppress("DEPRECATION")
+        val type = parameter.asType().asTypeName()
+
+        val builder: ParameterSpec.Builder =
+            ParameterSpec.builder(
+                name = name,
+                type = type.copy(nullable = isNullable)
+            ).jvmModifiers(parameter.modifiers)
+        return builder.build()
+    }
+
+    /**
+     * Returns a [FunSpec] for a constructor matching the given [ExecutableElement]
+     * constructor signature, and just calls super. If the constructor is
+     * [android.annotation.TargetApi] guarded, adds the TargetApi as well.
+     */
+    // Example:
+    //   Foo(Param1 param1, Param2 param2) {
+    //     super(param1, param2);
+    //   }
+    private fun copyConstructor(constructor: ExecutableElement): FunSpec {
+        val params: List<ParameterSpec> = constructor.parameters.stream()
+            .map { parameter: VariableElement -> getParameterSpecWithNullable(parameter) }
+            .collect(Collectors.toList())
+        val builder: FunSpec.Builder = FunSpec.constructorBuilder()
+            .addParameters(params)
+            .callSuperConstructor(
+                params.stream()
+                    .map { param: ParameterSpec -> param.name }
+                    .collect(
+                        Collectors.joining(", ")
+                    )
+            )
+
+        @Suppress("DEPRECATION")
+        Processors.getAnnotationMirrorOptional(constructor, AndroidClassNames.TARGET_API)
+            .map(AnnotationSpec::get)
+            .ifPresent(builder::addAnnotation)
+
+        return builder.build()
+    }
+
+    /**
+     * Copies the Android lint annotations from the annotated element to the generated element.
+     *
+     *
+     * Note: For now we only copy over [android.annotation.TargetApi].
+     */
+    fun copyLintAnnotations(element: Element, builder: TypeSpec.Builder) {
+        if (Processors.hasAnnotation(element, AndroidClassNames.TARGET_API)) {
+            builder.addAnnotation(
+                AnnotationSpec.get(
+                    Processors.getAnnotationMirror(element, AndroidClassNames.TARGET_API)
+                )
+            )
+        }
     }
 }

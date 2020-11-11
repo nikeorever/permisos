@@ -16,6 +16,7 @@ object ClassNames {
     val PERMISOS: ClassName = ClassName("cn.nikeo.permisos.weaving", "Permisos")
     val REQUIRED_PERMISSIONS: ClassName =
         ClassName("cn.nikeo.permisos.weaving", "RequiredPermissions")
+    val JAVA_OBJECT = ClassName("java.lang", "Object")
 
     // Kotlin-specific class names
     val KOTLIN_METADATA: ClassName = ClassName("kotlin", "Metadata")
