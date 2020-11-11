@@ -132,7 +132,7 @@ Sometimes you need to use permission checking and request functions outside of `
 #### Top-level build file
 ```groovy
 buildscript {
-    ext.permisos_version = "0.4.0"
+    ext.permisos_version = "0.5.0"
     repositories {
         google()
         jcenter()
