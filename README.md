@@ -6,9 +6,6 @@ This is a library that allows you to check and request permissions by **annotati
 
 Using this library can greatly reduce the complexity of permission requests. You no longer need to write so much redundant template code. Let the annotations handle these tasks. You can shift your focus to the business code.
 
-**_This project is currently in development and the API subject to breaking 
-changes without notice._**  
-
 ## Use Annotation
 Three easy steps:
 
